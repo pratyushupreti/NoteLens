@@ -8,9 +8,8 @@ def segment_lines(
     image_path,
     output_dir="data/processed/lines"
 ):
-
     # 1. Load image
-    image = cv2.imread(image_path)
+    image = cv2.imread(str(image_path))
 
     if image is None:
         raise FileNotFoundError(image_path)
@@ -50,7 +49,6 @@ def segment_lines(
     )[0]
 
     if len(active_rows) == 0:
-        print("No handwriting detected.")
         return []
 
     # 6. Group active rows
@@ -62,7 +60,6 @@ def segment_lines(
     merge_gap = 2
 
     for row in active_rows[1:]:
-
         if row - previous > merge_gap:
             groups.append((start, previous))
             start = row
@@ -88,18 +85,22 @@ def segment_lines(
     for old_file in output_path.glob("line_*.png"):
         old_file.unlink()
 
+    # 9. Crop individual lines
     detected_lines = []
-
     padding = 8
 
-    # 9. Crop individual lines
     for index, (y1, y2) in enumerate(groups):
 
-        y1 = max(0, y1 - padding)
-        y2 = min(image.shape[0], y2 + padding + 1)
+        text_y1 = y1
+        text_y2 = y2
 
-        region = binary[y1:y2, :]
+        crop_y1 = max(0, text_y1 - padding)
+        crop_y2 = min(
+            image.shape[0],
+            text_y2 + padding + 1
+        )
 
+        region = binary[crop_y1:crop_y2, :]
         points = cv2.findNonZero(region)
 
         if points is None:
@@ -107,27 +108,30 @@ def segment_lines(
 
         x, _, w, _ = cv2.boundingRect(points)
 
-        x1 = max(0, x - padding)
-        x2 = min(image.shape[1], x + w + padding)
+        text_x = x
+        text_width = w
 
-        cropped_line = image[y1:y2, x1:x2]
+        crop_x1 = max(0, x - padding)
+        crop_x2 = min(
+            image.shape[1],
+            x + w + padding
+        )
+
+        cropped_line = image[
+            crop_y1:crop_y2,
+            crop_x1:crop_x2
+        ]
 
         filename = output_path / f"line_{index + 1:02d}.png"
 
         cv2.imwrite(str(filename), cropped_line)
 
-        detected_lines.append(filename)
-
-        print(
-            f"Line {index + 1}: "
-            f"Y={y1}-{y2}, X={x1}-{x2}"
-        )
-
-    print("\nTotal lines detected:", len(detected_lines))
+        detected_lines.append({
+            "path": str(filename),
+            "x": text_x,
+            "y": text_y1,
+            "width": text_width,
+            "height": text_y2 - text_y1 + 1
+        })
 
     return detected_lines
-
-
-if __name__ == "__main__":
-
-    segment_lines("data/input/test_line.png")

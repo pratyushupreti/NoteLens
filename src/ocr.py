@@ -3,12 +3,11 @@ import torch
 from transformers import TrOCRProcessor, VisionEncoderDecoderModel
 from PIL import Image
 
+
 MODEL_NAME = "microsoft/trocr-base-handwritten"
 
 # Select GPU if available
 device = "cuda" if torch.cuda.is_available() else "cpu"
-
-print(f"Using device: {device}")
 
 # Load processor and pretrained model
 processor = TrOCRProcessor.from_pretrained(MODEL_NAME)
@@ -20,8 +19,8 @@ model = VisionEncoderDecoderModel.from_pretrained(
 model.to(device)
 model.eval()
 
-def recognize_handwriting(image_path):
 
+def recognize_handwriting(image_path):
     # Load image
     image = Image.open(image_path).convert("RGB")
 
@@ -46,13 +45,3 @@ def recognize_handwriting(image_path):
     )[0]
 
     return text
-
-
-if __name__ == "__main__":
-
-    image_path = "data/input/test_crop.png"
-
-    result = recognize_handwriting(image_path)
-
-    print("\nRecognized text:")
-    print(result)

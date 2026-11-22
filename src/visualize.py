@@ -1,31 +1,53 @@
 
 import cv2
 import matplotlib.pyplot as plt
-from pathlib import Path
 
-folder = Path("data/processed/lines")
+from segmentation import segment_lines
 
-files = sorted(folder.glob("line_*.png"))
 
-if not files:
-    raise FileNotFoundError("No segmented lines found!")
+def visualize_bounding_boxes(image_path):
 
-fig, axes = plt.subplots(
-    len(files), 1,
-    figsize=(12, 3 * len(files))
-)
+    image = cv2.imread(str(image_path))
 
-if len(files) == 1:
-    axes = [axes]
+    if image is None:
+        raise FileNotFoundError(
+            f"Could not load image: {image_path}"
+        )
 
-for ax, file in zip(axes, files):
+    lines = segment_lines(str(image_path))
 
-    image = cv2.imread(str(file))
+    for index, line in enumerate(lines, 1):
+
+        x = line["x"]
+        y = line["y"]
+        width = line["width"]
+        height = line["height"]
+
+        x2 = x + width
+        y2 = y + height
+
+        cv2.rectangle(
+            image,
+            (x, y),
+            (x2, y2),
+            (0, 255, 0),
+            2
+        )
+
+        cv2.putText(
+            image,
+            str(index),
+            (x, max(y - 5, 15)),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.6,
+            (0, 0, 255),
+            2
+        )
+
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-    ax.imshow(image)
-    ax.set_title(file.name)
-    ax.axis("off")
-
-plt.tight_layout()
-plt.show()
+    plt.figure(figsize=(14, 10))
+    plt.imshow(image)
+    plt.axis("off")
+    plt.tight_layout()
+    plt.show()
