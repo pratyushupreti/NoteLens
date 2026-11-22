@@ -1,0 +1,53 @@
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE and editor
+.vscode/
+.idea/
+
+# Operating system
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Generated processing files
+data/processed/
+outputs/
+temp/
+
+# Model weights and checkpoints
+*.pt
+*.pth
+*.onnx
+*.h5
+*.pkl
+
+# Build files
+build/
+dist/
+*.egg-info/
+
+# Test and coverage cache
+.pytest_cache/
+.coverage
+htmlcov/
