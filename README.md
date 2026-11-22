@@ -1,52 +1,39 @@
 
 # NoteLens
 
-**An intelligent handwritten document digitization system using computer vision and deep learning.**
+**AI-powered handwritten document digitization using computer vision and transformer-based handwriting recognition.**
 
-NoteLens is an experimental document-processing project designed to convert handwritten documents into machine-readable text. It combines traditional computer vision techniques with transformer-based handwriting recognition to process handwritten document images.
+NoteLens is a Python-based project that converts handwritten documents into digital text. It uses OpenCV for image preprocessing and line segmentation, followed by Microsoft's TrOCR model to recognize handwritten text.
 
-The project focuses on image preprocessing, text-line detection, line segmentation, and handwriting recognition.
+The goal is to build a complete document digitization pipeline that can process handwritten pages and produce machine-readable text.
 
 ---
-
-## Overview
-
-Extracting text from handwritten documents is challenging due to variations in handwriting styles, inconsistent spacing, image noise, and document layouts.
-
-NoteLens aims to address these challenges through a modular processing pipeline that prepares document images, identifies individual handwritten text lines, and applies deep learning-based handwriting recognition.
 
 ## Features
 
 ### Implemented
 
-- **Image preprocessing:** Prepare document images for further processing.
-- **Grayscale conversion:** Simplify image representation.
-- **Image thresholding:** Separate foreground text from the background.
-- **Noise reduction:** Improve image quality for segmentation.
-- **Horizontal projection analysis:** Identify handwritten text-line boundaries.
-- **Line segmentation:** Extract individual handwritten lines as separate images.
-- **Visualization:** Inspect intermediate image-processing results.
+- Image preprocessing using OpenCV.
+- Grayscale conversion and image thresholding.
+- Noise reduction and projection-based line detection.
+- Automatic segmentation of handwritten documents into individual lines.
+- Visualization and saving of segmented line images.
+- Handwriting recognition using Microsoft's TrOCR model.
+- Integrated pipeline for processing a document and recognizing its text.
+- Saving recognized text to an output file.
 
 ### In Development
 
-- **Handwriting recognition:** Integrate Microsoft's TrOCR transformer model.
-- **Text reconstruction:** Combine recognized lines into complete documents.
-- **Recognition evaluation:** Evaluate OCR performance using standard metrics.
+- Improved text reconstruction and paragraph formatting.
+- Recognition accuracy evaluation.
+- Better handling of different handwriting styles and document layouts.
+- More robust document preprocessing.
 
-## Technology Stack
+---
 
-| Technology | Purpose |
-|---|---|
-| Python | Core development |
-| OpenCV | Image processing and computer vision |
-| NumPy | Numerical computation |
-| PyTorch | Deep learning framework |
-| Hugging Face Transformers | TrOCR model integration |
-| Pillow | Image handling |
+## How It Works
 
-## Project Architecture
-
-NoteLens follows a document-processing pipeline:
+NoteLens currently follows this processing pipeline:
 
 ```text
 Handwritten Document
@@ -55,26 +42,67 @@ Handwritten Document
 Image Preprocessing
         |
         v
-Noise Reduction
+Grayscale Conversion
         |
         v
-Image Thresholding
+Thresholding & Noise Reduction
         |
         v
 Horizontal Projection
         |
         v
-Text Line Detection
+Handwritten Line Detection
         |
         v
 Line Segmentation
         |
         v
-Handwriting Recognition
+TrOCR Handwriting Recognition
         |
         v
-Structured Text Output
+Recognized Text
+        |
+        v
+Output File
 ```
+
+### 1. Image Preprocessing
+
+The input document is processed using OpenCV to prepare it for segmentation.
+
+### 2. Line Detection and Segmentation
+
+Horizontal projection is used to identify handwritten text regions. The document is divided into individual line images, which are saved for further processing.
+
+### 3. Handwriting Recognition
+
+Each segmented line is passed to Microsoft's TrOCR model:
+
+`microsoft/trocr-base-handwritten`
+
+The model generates a text prediction for each line.
+
+### 4. Text Output
+
+Recognized lines are combined in reading order and saved to:
+
+`data/processed/recognized.txt`
+
+---
+
+## Tech Stack
+
+| Technology | Purpose |
+|---|---|
+| Python | Core programming language |
+| OpenCV | Image processing and segmentation |
+| NumPy | Numerical operations |
+| PyTorch | Deep learning framework |
+| Hugging Face Transformers | TrOCR model integration |
+| Pillow | Image handling |
+| TrOCR | Handwriting recognition |
+
+---
 
 ## Project Structure
 
@@ -82,130 +110,149 @@ Structured Text Output
 NoteLens/
 │
 ├── data/
-│   ├── raw/
-│   └── processed/
-│       └── lines/
+│   └── input/
 │
 ├── src/
-│   ├── crop_test.py
-│   ├── debug_projection.py
 │   ├── ocr.py
+│   ├── pipeline.py
+│   ├── reconstruction.py
 │   ├── segmentation.py
 │   └── visualize.py
 │
 ├── requirements.txt
 ├── README.md
 └── .gitignore
+
+**Note:** The `data/processed/` directory is generated automatically when the pipeline runs. It stores segmented line images, recognized text, and reconstructed document output. This directory is excluded from version control.
+
 ```
 
-## Installation
+---
 
-### 1. Clone the repository
+## Getting Started
+
+### Prerequisites
+
+- Python 3.10 or later
+- pip
+- Git
+
+A CUDA-compatible GPU is optional. The pipeline can also run using a CPU, although recognition may be slower.
+
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/pratyushupreti/NoteLens.git
 cd NoteLens
 ```
 
-### 2. Create a virtual environment
+### 2. Create a Virtual Environment
 
 ```bash
-python -m venv .venv
+python -m venv venv
 ```
 
-Activate the environment on Windows:
+Activate it:
 
+**Windows:**
 ```bash
-.venv\Scripts\activate
+venv\Scripts\activate
 ```
 
-On Linux/macOS:
-
+**Linux / macOS:**
 ```bash
-source .venv/bin/activate
+source venv/bin/activate
 ```
 
-### 3. Install dependencies
+### 3. Install Dependencies
 
 ```bash
-python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-For GPU-specific PyTorch installation, refer to:
+### 4. Run the Pipeline
 
-https://pytorch.org/get-started/locally/
+```bash
+python src/pipeline.py
+```
 
-## Usage
+The first execution may take longer because the pretrained TrOCR model needs to be downloaded.
 
-The project is currently under active development.
-
-The main processing workflow involves:
-
-1. Providing a handwritten document image.
-2. Preprocessing the image.
-3. Applying horizontal projection analysis.
-4. Detecting handwritten text lines.
-5. Extracting individual lines into separate images.
-6. Passing segmented lines to the handwriting recognition model as recognition integration is completed.
-
-The source files are currently organized as individual Python scripts. Execution commands and a unified entry point will be documented as the pipeline is consolidated.
+---
 
 ## Current Progress
 
-| Component | Status |
-|---|---|
-| Image loading | Implemented |
-| Image preprocessing | Implemented |
-| Noise reduction | Implemented |
-| Horizontal projection analysis | Implemented |
-| Text-line detection | Implemented |
-| Line segmentation | Implemented |
-| Visualization utilities | Implemented |
-| TrOCR integration | In development |
-| Full-document text reconstruction | Planned |
-| Automated testing | Planned |
-| OCR performance evaluation | Planned |
+### Milestone 1 — Core Document Processing
 
-### Initial Segmentation Results
+**Completed work**
 
-The initial segmentation test successfully detected **9 handwritten text lines** from a sample document.
+- Implemented image preprocessing.
+- Implemented projection-based handwritten line detection.
+- Developed automatic line segmentation.
+- Integrated TrOCR handwriting recognition.
+- Connected segmentation and recognition into a processing pipeline.
+- Tested the pipeline on a sample handwritten document.
 
-Each detected line was extracted and saved as an individual image.
+**Latest test result:**
 
-This demonstrates the functionality of the initial line-segmentation pipeline. It is not a general accuracy benchmark.
+- 9 handwritten lines detected.
+- All 9 segmented lines passed through the recognition stage.
+- Recognized text reached the output-saving stage.
 
-## Roadmap
+### Milestone 2 — Recognition Quality and Text Reconstruction
 
-- [x] Implement image preprocessing.
-- [x] Implement horizontal projection-based line detection.
-- [x] Extract individual handwritten text lines.
-- [x] Visualize segmentation results.
-- [ ] Complete TrOCR integration.
-- [ ] Implement full-document text reconstruction.
-- [ ] Add automated unit tests.
-- [ ] Evaluate recognition using Character Error Rate (CER) and Word Error Rate (WER).
-- [ ] Improve segmentation for complex handwriting layouts.
-- [ ] Build a unified document-processing pipeline.
-- [ ] Develop a user-friendly interface.
+- [ ] Evaluate OCR output against manually transcribed text.
+- [ ] Calculate Character Error Rate (CER).
+- [ ] Calculate Word Error Rate (WER).
+- [ ] Improve recognition quality.
+- [ ] Reconstruct paragraphs and document structure.
+- [ ] Handle headings, signatures, and other layout elements.
+
+### Milestone 3 — Robustness and Testing
+
+- [ ] Test on multiple handwritten documents.
+- [ ] Handle different handwriting styles.
+- [ ] Improve performance on noisy and low-quality images.
+- [ ] Add automated tests.
+- [ ] Improve error handling and logging.
+
+### Milestone 4 — Application Development
+
+- [ ] Build a user-friendly interface.
+- [ ] Support document uploads.
+- [ ] Display extracted text.
+- [ ] Allow users to download recognized text.
+- [ ] Add document history and processing status.
+
+### Milestone 5 — Deployment
+
+- [ ] Build an API for document processing.
+- [ ] Containerize the application.
+- [ ] Deploy the application.
+- [ ] Add performance monitoring.
+
+---
 
 ## Future Improvements
 
-Potential improvements include:
+Potential future directions include:
 
-- Handling skewed and rotated documents.
-- Supporting different handwriting styles.
-- Improving segmentation for overlapping text lines.
-- Supporting multi-page document processing.
-- Comparing different handwriting recognition models.
-- Adding confidence scores to recognized text.
-- Building an interactive document digitization interface.
+- Better document layout analysis.
+- Improved paragraph and formatting reconstruction.
+- Support for multiple languages.
+- Batch document processing.
+- Confidence scores for recognized text.
+- A scalable document-processing API.
+
+---
 
 ## Contributing
 
-Contributions, suggestions, and bug reports are welcome.
+Contributions, suggestions, and feedback are welcome.
 
-If you encounter an issue or have an improvement idea, feel free to open a GitHub issue.
+If you find a bug or have an idea for improvement, feel free to open an issue or submit a pull request.
+
+---
 
 ## Author
 
@@ -213,8 +260,6 @@ If you encounter an issue or have an improvement idea, feel free to open a GitHu
 
 GitHub: [@pratyushupreti](https://github.com/pratyushupreti)
 
-Project: [NoteLens](https://github.com/pratyushupreti/NoteLens)
-
 ---
 
-**Note:** NoteLens is an experimental project under active development. Features, architecture, and implementation details may evolve as development progresses.
+*NoteLens is an ongoing project focused on exploring computer vision, deep learning, and applied AI through handwritten document digitization.*
