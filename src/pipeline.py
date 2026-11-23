@@ -4,6 +4,7 @@ from pathlib import Path
 from reconstruction import reconstruct_paragraphs
 from segmentation import segment_lines
 from ocr import recognize_handwriting
+from text_cleaning import clean_text
 
 
 def process_document(image_path):
@@ -34,6 +35,8 @@ def process_document(image_path):
         })
 
     paragraphs = reconstruct_paragraphs(recognized_lines)
+    paragraphs = [clean_text(paragraph) for paragraph in paragraphs]
+    
 
     output_dir = Path("data/processed")
     output_dir.mkdir(parents=True, exist_ok=True)
